@@ -43,6 +43,7 @@ const Results = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          //onClick={() => setIsOpen(false)}
           className="bg-slate-900/20 backdrop-blur p-8 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer"
         >
           <motion.div
@@ -66,7 +67,7 @@ const Results = ({
                   onClick={handleClick}
                   className="bg-white hover:opacity-90 transition-opacity text-indigo-600 font-semibold w-3/4 py-2 rounded mx-auto "
                 >
-                  Try Again
+                  Go Again
                 </button>
               </div>
               <motion.ul

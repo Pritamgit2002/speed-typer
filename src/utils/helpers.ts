@@ -26,7 +26,7 @@ export const calculateAccuracyPercentage = (errors: number, total: number) => {
 export const calculateWpm = (errors: number, total: number) => {
     if (total > 0) {
         const correctedWords = total - errors;
-        return (correctedWords / 5) * 2;
+        return Math.floor((correctedWords / 5) * 2);
     }
     return 0;
 }
