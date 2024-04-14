@@ -1,39 +1,42 @@
 "use client";
+import GeneratedWords from "@/components/GeneratedWords";
+import RestartButton from "@/components/RestartButton";
 import UserTypings from "@/components/UserTypings";
 import Results from "@/components/results";
 import useEngine from "@/hooks/useEngine";
-import { calculateAccuracyPercentage } from "@/utils/helpers";
-import React from "react";
+import { calculateAccuracyPercentage, calculateWpm } from "@/utils/helpers";
+import React, { useState } from "react";
 
 export default function Home() {
+  const [isOpen, setIsOpen] = useState(false);
+
   const { state, words, timeLeft, typed, errors, restart, totalTyped } =
     useEngine();
 
   return (
-    <div className=" bg-[#1B2435] h-screen  flex flex-col items-center justify-center ">
-      {/* <CountdownTimer time={timeLeft} /> */}
+    <div className=" mx-auto flex flex-col items-center justify-center h-screen max-w-3xl ">
+      <CountdownTimer timeLeft={timeLeft} />
       <WordsContainer>
-        <GenerateWords words={words} />
-        {state === "start" && (
-          <UserTypings
-            className="absolute inset-0"
-            words={words as string}
-            userInput={typed}
-          />
-        )}
+        <GeneratedWords key={words} words={words} />
+        {/* User typed characters will be overlayed over the generated words */}
+        <UserTypings
+          className="absolute inset-0"
+          words={words}
+          userInput={typed}
+        />
       </WordsContainer>
-      <div
-        className=" px-4 py-2  rounded-lg bg-slate-600 text-gray-300 font-medium cursor-pointer  "
-        onClick={restart}
-      >
-        Reset
-      </div>
       <Results
-        state={state}
         className="mt-10"
+        state={state}
         errors={errors}
-        accuracy={calculateAccuracyPercentage(errors, totalTyped)}
+        accuracyPercentage={calculateAccuracyPercentage(errors, totalTyped)}
         total={totalTyped}
+        wpm={calculateWpm(errors, totalTyped)}
+        onRestart={restart}
+      />
+      <RestartButton
+        className={"mx-auto mt-10 text-slate-500"}
+        onRestart={restart}
       />
     </div>
   );
@@ -41,20 +44,16 @@ export default function Home() {
 
 const WordsContainer = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="relative max-w-3xl mt-3 text-4xl leading-relaxed">
+    <div className="relative text-3xl max-w-3xl leading-relaxed break-all mt-3 w-full ">
       {children}
     </div>
   );
 };
 
-const GenerateWords = ({ words }: { words: any }) => {
-  return <div className="  text-slate-400 ">{words}</div>;
-};
-
-const CountdownTimer = ({ time }: { time: number }) => {
+const CountdownTimer = ({ timeLeft }: { timeLeft: number }) => {
   return (
-    <div className=" text-yellow-400 font-medium text-lg text-left tracking-wider ">
-      Time: {time}
-    </div>
+    <h2 className="text-primary-400 font-medium text-lg text-yellow-400 text-left w-full  ">
+      Time: {timeLeft}
+    </h2>
   );
 };

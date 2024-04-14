@@ -1,81 +1,72 @@
+import { useCallback, useEffect, useState } from "react";
 
-"use client"
-import { useCallback, useEffect, useState } from 'react';
-import useWords from './useWords';
-import useCountdownTimer from './useCountdownTimer';
-import useTypings from './useTypings';
-import { countErrors } from '@/utils/helpers';
+import useTypings from "./useTypings";
+import useWords from "./useWords";
+import useCountdownTimer from "./useCountdownTimer";
+import { countErrors } from "@/utils/helpers";
 
-export type State = "start" | "stop" | "finish";
-const NUMBER_OF_WORDS = 12;
+export type State = "start" | "run" | "finish";
+
+const NUMBER_OF_WORDS = 30;
 const COUNTDOWN_SECONDS = 30;
-const useEngine = () => {
-    const [state, setState] = useState<State>("start");
 
-    // Ensure that this code runs only on the client-side
+const useEngine = () => {
+
+    const [state, setState] = useState<State>("start");
     const { timeLeft, startCountdown, resetCountdown } = useCountdownTimer(COUNTDOWN_SECONDS);
     const { words, updateWords } = useWords(NUMBER_OF_WORDS);
-    const { typed,
-        cursor,
-        clearTyped,
-        resetTotalTyped,
-        totalTyped } = useTypings(state !== "finish")
+    const { cursor, typed, clearTyped, totalTyped, resetTotalTyped } = useTypings(state !== "finish");
     const [errors, setErrors] = useState(0);
 
-    const isStarting = state === "start" || cursor > 0;
+    const isStarting = state === "start" && cursor > 0;
     const areWordsFinished = cursor === words.length;
 
+    const restart = useCallback(() => {
+        resetCountdown();
+        resetTotalTyped();
+        setState("start");
+        setErrors(0);
+        updateWords();
+        clearTyped();
+    }, [clearTyped, updateWords, resetCountdown, resetTotalTyped]);
+
     const sumErrors = useCallback(() => {
-        const wordsReached = words.substring(0, cursor);
-        setErrors((prevErrors) => prevErrors + countErrors(typed, wordsReached))
-    }, [typed, words, cursor])
+        const wordsReached = words.substring(0, Math.min(cursor, words.length));
+        setErrors((prevErrors) => prevErrors + countErrors(typed, wordsReached));
+    }, [typed, words, cursor]);
 
-    //as soon as typing start start the countdown
-
+    // as soon the user starts typing the first letter, we start
     useEffect(() => {
         if (isStarting) {
-            setState("run" as State);
-
+            setState("run");
             startCountdown();
         }
-    }, [isStarting, startCountdown, cursor]);
+    }, [isStarting, startCountdown]);
 
-    //when the time is up, it's finished
-
+    // when the time is up, we've finished
     useEffect(() => {
-        console.log("time is up...");
-        setState("finish" as State);
-        sumErrors();
-    }, [timeLeft, sumErrors])
+        if (!timeLeft && state === "run") {
+            setState("finish");
+            sumErrors();
+        }
+    }, [timeLeft, state, sumErrors]);
 
-    // when types is filled , create new
+    /**
+     * when the current words are all filled up,
+     * we generate and show another set of words
+     */
     useEffect(() => {
         if (areWordsFinished) {
-            console.log("words are finished");
             sumErrors();
             updateWords();
             clearTyped();
         }
-    }, [cursor, words, clearTyped, typed, areWordsFinished, updateWords, sumErrors])
+    }, [clearTyped, areWordsFinished, updateWords, sumErrors]);
 
-    //restart button functionality
+    return {
+        state, words, typed, errors, restart, timeLeft, totalTyped
 
-    const restart = useCallback(() => {
-        setState("start");
-        resetCountdown();
-        clearTyped();
-        resetTotalTyped();
-        setErrors(0);
-        updateWords();
-        clearTyped();
-    }, [clearTyped, updateWords, resetCountdown, resetTotalTyped])
-
-
-    if (typeof window !== 'undefined') {
-        return { state, words, timeLeft, typed, errors, totalTyped, restart };
-    }
-    // If running on the server, return default state
-    return { state, words: [], timeLeft, typed, errors, totalTyped, restart };
+    };
 };
 
 export default useEngine;
