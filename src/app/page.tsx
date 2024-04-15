@@ -14,7 +14,11 @@ export default function Home() {
     useEngine();
 
   return (
-    <div className=" mx-auto flex flex-col items-center justify-center h-screen max-w-3xl ">
+    <div className=" mx-auto flex flex-col items-center justify-center h-screen max-w-3xl relative ">
+      <span className=" absolute text-sm text-slate-600 font-medium py-1 px-2 rounded-xl bg-gray-100 top-0 mx-auto ">
+        {" "}
+        This is still under construction...{" "}
+      </span>
       <CountdownTimer timeLeft={timeLeft} />
       <WordsContainer>
         <GeneratedWords key={words} words={words} />
