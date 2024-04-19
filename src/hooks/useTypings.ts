@@ -12,6 +12,7 @@ const isKeyboardCodeAllowed = (code: string) => {
 const useTypings = (enabled: boolean) => {
     const [cursor, setCursor] = useState(0);
     const [typed, setTyped] = useState<string>("");
+    const [typedStart, isSetTypedStart] = useState<boolean>(false);
     const totalTyped = useRef(0);
 
     const keydownHandler = useCallback(
@@ -59,6 +60,8 @@ const useTypings = (enabled: boolean) => {
         clearTyped,
         resetTotalTyped,
         totalTyped: totalTyped.current,
+        typedStart,
+        isSetTypedStart
     };
 };
 

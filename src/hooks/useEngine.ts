@@ -7,15 +7,19 @@ import { countErrors } from "@/utils/helpers";
 
 export type State = "start" | "run" | "finish";
 
-const NUMBER_OF_WORDS = 30;
-const COUNTDOWN_SECONDS = 30;
+//const NUMBER_OF_WORDS = 30;
+//const COUNTDOWN_SECONDS = 30;
 
 const useEngine = () => {
 
     const [state, setState] = useState<State>("start");
-    const { timeLeft, startCountdown, resetCountdown } = useCountdownTimer(COUNTDOWN_SECONDS);
-    const { words, updateWords } = useWords(NUMBER_OF_WORDS);
-    const { cursor, typed, clearTyped, totalTyped, resetTotalTyped } = useTypings(state !== "finish");
+    const [word, setWords] = useState<number>(15);
+    const [time, setTime] = useState<number>(30);
+    //const { timeLeft, startCountdown, resetCountdown } = useCountdownTimer(COUNTDOWN_SECONDS);
+    const { timeLeft, startCountdown, resetCountdown } = useCountdownTimer(time);
+    //const { words, updateWords } = useWords(NUMBER_OF_WORDS);
+    const { words, updateWords } = useWords(word);
+    const { cursor, typed, clearTyped, totalTyped, resetTotalTyped, typedStart, isSetTypedStart } = useTypings(state !== "finish");
     const [errors, setErrors] = useState(0);
 
     const isStarting = state === "start" && cursor > 0;
@@ -28,6 +32,7 @@ const useEngine = () => {
         setErrors(0);
         updateWords();
         clearTyped();
+        isSetTypedStart(false);
     }, [clearTyped, updateWords, resetCountdown, resetTotalTyped]);
 
     const sumErrors = useCallback(() => {
@@ -40,6 +45,7 @@ const useEngine = () => {
         if (isStarting) {
             setState("run");
             startCountdown();
+            isSetTypedStart(true);
         }
     }, [isStarting, startCountdown]);
 
@@ -48,6 +54,7 @@ const useEngine = () => {
         if (!timeLeft && state === "run") {
             setState("finish");
             sumErrors();
+            isSetTypedStart(false);
         }
     }, [timeLeft, state, sumErrors]);
 
@@ -64,7 +71,7 @@ const useEngine = () => {
     }, [clearTyped, areWordsFinished, updateWords, sumErrors]);
 
     return {
-        state, words, typed, errors, restart, timeLeft, totalTyped
+        state, words, typed, errors, restart, timeLeft, setWords, setTime, totalTyped, typedStart, isSetTypedStart
 
     };
 };
