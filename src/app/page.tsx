@@ -79,37 +79,6 @@ export default function Home() {
               60
             </Button>
           </TabsContent>
-
-          {/* <TabsContent value="times">
-            <Button
-              onClick={() => {
-                setTime(30);
-              }}
-            >
-              30
-            </Button>
-            <Button
-              onClick={() => {
-                setTime(60);
-              }}
-            >
-              60
-            </Button>
-            <Button
-              onClick={() => {
-                setTime(90);
-              }}
-            >
-              90
-            </Button>
-            <Button
-              onClick={() => {
-                setTime(120);
-              }}
-            >
-              120
-            </Button>
-          </TabsContent> */}
         </Tabs>
       </div>
 
